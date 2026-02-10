@@ -17,6 +17,7 @@ body {
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  transition: background 0.6s ease;
 }
 
 /* FLOATING HEARTS */
@@ -54,7 +55,7 @@ body {
 
 h1 {
   margin-top: 0;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 input {
@@ -80,16 +81,22 @@ button {
 
 button.secondary {
   background: #111827;
-  margin-top: 16px;
+  margin-top: 14px;
 }
 
 #result {
-  margin-top: 24px;
+  margin-top: 22px;
   font-size: 18px;
   font-weight: 600;
-  color: #e11d48;
   display: none;
 }
+
+#history {
+  margin-top: 14px;
+  font-size: 14px;
+  color: #374151;
+}
+
 </style>
 </head>
 
@@ -101,15 +108,18 @@ button.secondary {
   <div id="form">
     <input type="text" id="name1" placeholder="Your Name">
     <input type="text" id="name2" placeholder="Partner Name">
-    <button onclick="calculateFlames()">Check Relationship 💖</button>
+    <button onclick="startCalculation()">Check Relationship 💖</button>
   </div>
 
   <div id="result"></div>
+  <div id="history"></div>
+
+  <button class="secondary" id="share" onclick="shareResult()" style="display:none;">📤 Share Result</button>
   <button class="secondary" id="reset" onclick="resetGame()" style="display:none;">🔄 Try Again</button>
 </div>
 
 <script>
-/* FLOATING HEARTS (ALWAYS ACTIVE) */
+/* FLOATING HEARTS (BACKGROUND) */
 function createHeart() {
   const heart = document.createElement("div");
   heart.className = "heart";
@@ -120,6 +130,15 @@ function createHeart() {
   setTimeout(() => heart.remove(), 10000);
 }
 setInterval(createHeart, 500);
+
+/* START CALCULATION WITH ANIMATION */
+function startCalculation() {
+  const resultBox = document.getElementById("result");
+  resultBox.style.display = "block";
+  resultBox.innerText = "Calculating… 💫";
+
+  setTimeout(calculateFlames, 1500);
+}
 
 /* FLAMES LOGIC */
 function calculateFlames() {
@@ -145,31 +164,59 @@ function calculateFlames() {
   let count = arr1.join("").length + arr2.join("").length;
 
   let flames = ["Friends", "Love", "Affection", "Marriage", "Enemies", "Soulmates"];
+  let idx = 0;
 
-  let index = 0;
   while (flames.length > 1) {
-    index = (index + count - 1) % flames.length;
-    flames.splice(index, 1);
+    idx = (idx + count - 1) % flames.length;
+    flames.splice(idx, 1);
   }
 
   showResult(flames[0]);
 }
 
-/* SHOW RESULT */
+/* SHOW RESULT + EFFECTS */
 function showResult(result) {
-  const messages = {
-    Friends: "🤝 Friends – Besties forever!",
-    Love: "❤️ Love – Sparks are flying!",
-    Affection: "🥰 Affection – Deep feelings!",
-    Marriage: "💍 Marriage – Wedding bells!",
-    Enemies: "😅 Enemies – Love-hate vibes!",
-    Soulmates: "💞 Soulmates – Meant to be!"
+  const resultBox = document.getElementById("result");
+  const historyBox = document.getElementById("history");
+
+  const data = {
+    Friends: { text: "🤝 Friends – Besties forever!", bg: "#a1c4fd" },
+    Love: { text: "❤️ Love – Sparks are flying!", bg: "#ff9a9e" },
+    Affection: { text: "🥰 Affection – Deep feelings!", bg: "#fad0c4" },
+    Marriage: { text: "💍 Marriage – Wedding bells!", bg: "#fbc2eb" },
+    Enemies: { text: "😅 Enemies – Love-hate vibes!", bg: "#cfd9df" },
+    Soulmates: { text: "💞 Soulmates – Meant to be!", bg: "#fddb92" }
   };
 
+  document.body.style.background = `linear-gradient(135deg, ${data[result].bg}, #ffffff)`;
+  resultBox.innerText = data[result].text;
+
+  /* HEART BURST */
+  let burst = setInterval(createHeart, 120);
+  setTimeout(() => clearInterval(burst), 2000);
+
+  /* SAVE HISTORY */
+  localStorage.setItem("lastResult", data[result].text);
+  historyBox.innerText = "Last result: " + data[result].text;
+
   document.getElementById("form").style.display = "none";
-  document.getElementById("result").style.display = "block";
-  document.getElementById("result").innerText = messages[result];
   document.getElementById("reset").style.display = "inline-block";
+  document.getElementById("share").style.display = "inline-block";
+}
+
+/* LOAD HISTORY */
+window.onload = () => {
+  const last = localStorage.getItem("lastResult");
+  if (last) {
+    document.getElementById("history").innerText = "Last result: " + last;
+  }
+};
+
+/* SHARE */
+function shareResult() {
+  const text = document.getElementById("result").innerText;
+  navigator.clipboard.writeText("Our FLAMES result is: " + text + " ❤️");
+  alert("Result copied! Share it 💖");
 }
 
 /* RESET */
@@ -177,8 +224,10 @@ function resetGame() {
   document.getElementById("form").style.display = "block";
   document.getElementById("result").style.display = "none";
   document.getElementById("reset").style.display = "none";
+  document.getElementById("share").style.display = "none";
   document.getElementById("name1").value = "";
   document.getElementById("name2").value = "";
+  document.body.style.background = "linear-gradient(135deg, #ff9a9e, #fad0c4)";
 }
 </script>
 
