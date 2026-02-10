@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔥 FLAMES Love Test</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  font-family: "Poppins", system-ui, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* FLOATING HEARTS */
+.heart {
+  position: absolute;
+  bottom: -30px;
+  font-size: 22px;
+  opacity: 0.7;
+  animation: floatUp linear infinite;
+  pointer-events: none;
+}
+
+@keyframes floatUp {
+  from {
+    transform: translateY(0) scale(1);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateY(-120vh) scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* CARD */
+.card {
+  background: white;
+  padding: 36px;
+  border-radius: 26px;
+  width: 90%;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+  z-index: 10;
+}
+
+h1 {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+}
+
+button {
+  padding: 14px 30px;
+  border-radius: 999px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #ff4d6d;
+  color: white;
+  margin-top: 10px;
+}
+
+button.secondary {
+  background: #111827;
+  margin-top: 16px;
+}
+
+#result {
+  margin-top: 24px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #e11d48;
+  display: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h1>🔥 FLAMES Test</h1>
+
+  <div id="form">
+    <input type="text" id="name1" placeholder="Your Name">
+    <input type="text" id="name2" placeholder="Partner Name">
+    <button onclick="calculateFlames()">Check Relationship 💖</button>
+  </div>
+
+  <div id="result"></div>
+  <button class="secondary" id="reset" onclick="resetGame()" style="display:none;">🔄 Try Again</button>
+</div>
+
+<script>
+/* FLOATING HEARTS (ALWAYS ACTIVE) */
+function createHeart() {
+  const heart = document.createElement("div");
+  heart.className = "heart";
+  heart.innerText = "❤️";
+  heart.style.left = Math.random() * 100 + "vw";
+  heart.style.animationDuration = (6 + Math.random() * 4) + "s";
+  document.body.appendChild(heart);
+  setTimeout(() => heart.remove(), 10000);
+}
+setInterval(createHeart, 500);
+
+/* FLAMES LOGIC */
+function calculateFlames() {
+  let name1 = document.getElementById("name1").value.toLowerCase().replace(/\s/g, "");
+  let name2 = document.getElementById("name2").value.toLowerCase().replace(/\s/g, "");
+
+  if (!name1 || !name2) {
+    alert("Please enter both names 💕");
+    return;
+  }
+
+  let arr1 = name1.split("");
+  let arr2 = name2.split("");
+
+  for (let i = 0; i < arr1.length; i++) {
+    let index = arr2.indexOf(arr1[i]);
+    if (index !== -1) {
+      arr1[i] = "";
+      arr2[index] = "";
+    }
+  }
+
+  let count = arr1.join("").length + arr2.join("").length;
+
+  let flames = ["Friends", "Love", "Affection", "Marriage", "Enemies", "Soulmates"];
+
+  let index = 0;
+  while (flames.length > 1) {
+    index = (index + count - 1) % flames.length;
+    flames.splice(index, 1);
+  }
+
+  showResult(flames[0]);
+}
+
+/* SHOW RESULT */
+function showResult(result) {
+  const messages = {
+    Friends: "🤝 Friends – Besties forever!",
+    Love: "❤️ Love – Sparks are flying!",
+    Affection: "🥰 Affection – Deep feelings!",
+    Marriage: "💍 Marriage – Wedding bells!",
+    Enemies: "😅 Enemies – Love-hate vibes!",
+    Soulmates: "💞 Soulmates – Meant to be!"
+  };
+
+  document.getElementById("form").style.display = "none";
+  document.getElementById("result").style.display = "block";
+  document.getElementById("result").innerText = messages[result];
+  document.getElementById("reset").style.display = "inline-block";
+}
+
+/* RESET */
+function resetGame() {
+  document.getElementById("form").style.display = "block";
+  document.getElementById("result").style.display = "none";
+  document.getElementById("reset").style.display = "none";
+  document.getElementById("name1").value = "";
+  document.getElementById("name2").value = "";
+}
+</script>
+
+</body>
+</html>
