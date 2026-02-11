@@ -119,6 +119,8 @@ button.secondary{
   font-size:14px;
   color:#374151;
 }
+#history strong{color:#ff4d6d}
+
 #actions{display:none;margin-top:12px}
 </style>
 </head>
@@ -165,12 +167,19 @@ setInterval(()=>{
 /* Globals */
 const flamesLetters=["F","L","A","M","E","S"];
 let flamesState=[],stepIndex=0,remaining=0;
+let lastName1="",lastName2="";
 
 /* Start */
 function start(){
-  const a=n1.value.trim().toLowerCase().replace(/\s/g,"").split("");
-  const b=n2.value.trim().toLowerCase().replace(/\s/g,"").split("");
-  if(!a.length||!b.length) return alert("Enter both names");
+  const name1=n1.value.trim();
+  const name2=n2.value.trim();
+  if(!name1||!name2) return alert("Enter both names");
+
+  lastName1=name1;
+  lastName2=name2;
+
+  const a=name1.toLowerCase().replace(/\s/g,"").split("");
+  const b=name2.toLowerCase().replace(/\s/g,"").split("");
 
   form.style.display="none";
   status.innerText="Comparing names…";
@@ -246,15 +255,27 @@ function showResult(l){
   result.innerText=map[l][0];
   result.style.display="block";
 
-  localStorage.setItem("flamesLast",map[l][0]);
-  history.innerText="Last result: "+map[l][0];
+  const save={
+    name1:lastName1,
+    name2:lastName2,
+    result:map[l][0]
+  };
+  localStorage.setItem("flamesLast",JSON.stringify(save));
+
+  history.innerHTML=
+    `Last result:<br>
+     <strong>${save.name1}</strong> ❤️ <strong>${save.name2}</strong><br>
+     ${save.result}`;
+
   actions.style.display="block";
 }
 
 /* Share */
 function share(){
-  navigator.clipboard.writeText("FLAMES Result: "+result.innerText);
-  alert("Copied to clipboard 💖");
+  navigator.clipboard.writeText(
+    `FLAMES Result:\n${lastName1} ❤️ ${lastName2}\n${result.innerText}`
+  );
+  alert("Result copied 💖");
 }
 
 /* Restart */
@@ -262,10 +283,16 @@ function restart(){
   location.reload();
 }
 
-/* Load history */
+/* Load last history */
 window.onload=()=>{
-  const last=localStorage.getItem("flamesLast");
-  if(last) history.innerText="Last result: "+last;
+  const data=localStorage.getItem("flamesLast");
+  if(data){
+    const last=JSON.parse(data);
+    history.innerHTML=
+      `Last result:<br>
+       <strong>${last.name1}</strong> ❤️ <strong>${last.name2}</strong><br>
+       ${last.result}`;
+  }
 };
 </script>
 
