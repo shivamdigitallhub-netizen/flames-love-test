@@ -20,18 +20,18 @@ body {
   transition: background 0.6s ease;
 }
 
-/* FLOATING BACKGROUND EMOJI */
+/* FLOATING HEARTS */
 .float {
   position: absolute;
   bottom: -30px;
   font-size: 22px;
-  opacity: 0.8;
+  opacity: .8;
   animation: rise linear infinite;
   pointer-events: none;
 }
 @keyframes rise {
-  from { transform: translateY(0) scale(1); opacity: .9; }
-  to { transform: translateY(-120vh) scale(1.4); opacity: 0; }
+  from { transform: translateY(0) scale(1); opacity:.9; }
+  to { transform: translateY(-120vh) scale(1.4); opacity:0; }
 }
 
 /* CARD */
@@ -74,9 +74,7 @@ button.secondary {
 }
 
 /* LETTERS */
-.row {
-  margin-top: 12px;
-}
+.row { margin-top: 12px; }
 .letter {
   display: inline-block;
   margin: 4px;
@@ -100,22 +98,18 @@ button.secondary {
   background: #e5e7eb;
   font-weight: 700;
 }
+.flames .out {
+  text-decoration: line-through;
+  opacity: 0.4;
+}
+.flames .final {
+  border: 3px solid #ff4d6d;
+  background: #ffe4e6;
+}
 
-#status, #count {
-  margin-top: 14px;
-  font-weight: 600;
-}
-#result {
-  margin-top: 18px;
-  font-size: 18px;
-  font-weight: 700;
-  display: none;
-}
-#history {
-  margin-top: 10px;
-  font-size: 14px;
-  color: #374151;
-}
+#status, #count { margin-top: 14px; font-weight: 600; }
+#result { margin-top: 18px; font-size: 18px; font-weight: 700; display:none; }
+#history { margin-top: 10px; font-size: 14px; color:#374151; }
 </style>
 </head>
 
@@ -131,10 +125,8 @@ button.secondary {
   </div>
 
   <div id="status"></div>
-
   <div class="row" id="row1"></div>
   <div class="row" id="row2"></div>
-
   <div id="count"></div>
   <div id="flames" class="flames"></div>
   <div id="result"></div>
@@ -145,40 +137,42 @@ button.secondary {
 </div>
 
 <script>
-/* BACKGROUND HEARTS */
-setInterval(() => spawn("❤️"), 600);
-function spawn(e) {
-  const el = document.createElement("div");
-  el.className = "float";
-  el.innerText = e;
-  el.style.left = Math.random() * 100 + "vw";
-  el.style.animationDuration = (6 + Math.random()*4)+"s";
+/* FLOATING HEARTS */
+setInterval(()=>spawn("❤️"),600);
+function spawn(e){
+  const el=document.createElement("div");
+  el.className="float";
+  el.innerText=e;
+  el.style.left=Math.random()*100+"vw";
+  el.style.animationDuration=(6+Math.random()*4)+"s";
   document.body.appendChild(el);
   setTimeout(()=>el.remove(),10000);
 }
 
-let a=[], b=[], remainingCount=0;
+let a=[], b=[], remaining=0;
+let flames=["F","L","A","M","E","S"];
+let idx=0;
 
 /* START */
-function start() {
-  const n1 = name1.value.trim();
-  const n2 = name2.value.trim();
-  if(!n1 || !n2) return alert("Enter both names 💕");
+function start(){
+  const n1=name1.value.trim();
+  const n2=name2.value.trim();
+  if(!n1||!n2) return alert("Enter both names 💕");
 
-  a = n1.toLowerCase().replace(/\s/g,"").split("");
-  b = n2.toLowerCase().replace(/\s/g,"").split("");
+  a=n1.toLowerCase().replace(/\s/g,"").split("");
+  b=n2.toLowerCase().replace(/\s/g,"").split("");
 
   form.style.display="none";
   status.innerText="Showing letters…";
 
-  row1.innerHTML = a.map(l=>`<span class="letter">${l}</span>`).join("");
-  row2.innerHTML = b.map(l=>`<span class="letter">${l}</span>`).join("");
+  row1.innerHTML=a.map(l=>`<span class="letter">${l}</span>`).join("");
+  row2.innerHTML=b.map(l=>`<span class="letter">${l}</span>`).join("");
 
-  setTimeout(strike,6000);
+  setTimeout(strikeCommon,6000);
 }
 
-/* STRIKE COMMON */
-function strike() {
+/* STRIKE */
+function strikeCommon(){
   status.innerText="Striking common letters…";
   const r1=row1.children, r2=row2.children;
 
@@ -191,41 +185,41 @@ function strike() {
     }
   });
 
-  setTimeout(countRemaining,6000);
+  setTimeout(countLetters,6000);
 }
 
 /* COUNT */
-function countRemaining() {
-  remainingCount = a.join("").length + b.join("").length;
-  status.innerText="Counting remaining letters…";
-  count.innerText = `Remaining letters count: ${remainingCount}`;
-
-  setTimeout(startFlames,6000);
-}
-
-/* FLAMES ELIMINATION */
-let flamesArr=["F","L","A","M","E","S"];
-let index=0;
-
-function startFlames(){
+function countLetters(){
+  remaining=a.join("").length+b.join("").length;
+  count.innerText=`Remaining letters count: ${remaining}`;
   status.innerText="Running FLAMES elimination…";
-  flames.innerHTML = flamesArr.map(l=>`<span>${l}</span>`).join("");
-  eliminate();
+  showFlames();
 }
 
-function eliminate(){
-  if(flamesArr.length===1){
-    showResult(flamesArr[0]);
+/* SHOW FLAMES */
+function showFlames(){
+  flamesBox();
+  setTimeout(eliminateFlames,6000);
+}
+
+function flamesBox(){
+  flames.innerHTML=flames.map(l=>`<span>${l}</span>`).join("");
+}
+
+/* ELIMINATION */
+function eliminateFlames(){
+  if(flames.length===1){
+    finalize(flames[0]);
     return;
   }
-  index = (index + remainingCount -1) % flamesArr.length;
-  flamesArr.splice(index,1);
-  flames.innerHTML = flamesArr.map(l=>`<span>${l}</span>`).join("");
-  setTimeout(eliminate,2000);
+  idx=(idx+remaining-1)%flames.length;
+  flames.splice(idx,1);
+  flamesBox();
+  setTimeout(eliminateFlames,2000);
 }
 
-/* FINAL RESULT */
-function showResult(letter){
+/* FINAL */
+function finalize(letter){
   const map={
     F:["🤝 Friends","🤝","#a1c4fd"],
     L:["❤️ Love","❤️","#ff9a9e"],
@@ -235,7 +229,10 @@ function showResult(letter){
     S:["💞 Soulmates","💞","#fddb92"]
   };
 
-  body.style.background=`linear-gradient(135deg,${map[letter][2]},#fff)`;
+  document.body.style.background=
+    `linear-gradient(135deg,${map[letter][2]},#fff)`;
+
+  flames.innerHTML=`<span class="final">${letter}</span>`;
   result.style.display="block";
   result.innerText=map[letter][0];
 
