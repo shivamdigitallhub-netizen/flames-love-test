@@ -12,104 +12,105 @@ body {
   margin: 0;
   height: 100vh;
   background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-  font-family: "Poppins", system-ui, sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  transition: background 0.6s ease;
+  transition: background .5s;
 }
 
-/* FLOATING HEARTS */
-.float {
+/* Floating hearts */
+.heart {
   position: absolute;
   bottom: -30px;
-  font-size: 22px;
+  font-size: 20px;
+  animation: floatUp linear infinite;
   opacity: .8;
-  animation: rise linear infinite;
   pointer-events: none;
 }
-@keyframes rise {
-  from { transform: translateY(0) scale(1); opacity:.9; }
-  to { transform: translateY(-120vh) scale(1.4); opacity:0; }
+@keyframes floatUp {
+  to { transform: translateY(-120vh); opacity: 0; }
 }
 
-/* CARD */
 .card {
   background: #fff;
-  padding: 34px;
-  border-radius: 26px;
+  padding: 32px;
+  border-radius: 24px;
   width: 90%;
   max-width: 480px;
   text-align: center;
-  box-shadow: 0 25px 50px rgba(0,0,0,.25);
-  z-index: 10;
+  box-shadow: 0 20px 45px rgba(0,0,0,.25);
+  z-index: 2;
 }
 
-h1 { margin: 0 0 14px; }
+h1 { margin-bottom: 14px; }
 
 input {
   width: 100%;
   padding: 14px;
-  margin-bottom: 12px;
-  border-radius: 12px;
+  margin-bottom: 10px;
+  border-radius: 10px;
   border: 1px solid #ddd;
   font-size: 15px;
 }
 
 button {
-  padding: 14px 30px;
+  padding: 14px 28px;
   border-radius: 999px;
   border: none;
-  font-size: 15px;
   font-weight: 600;
-  cursor: pointer;
+  font-size: 15px;
   background: #ff4d6d;
-  color: white;
+  color: #fff;
+  cursor: pointer;
   margin-top: 10px;
 }
+
 button.secondary {
   background: #111827;
-  margin-top: 14px;
+  margin: 8px;
 }
 
-/* LETTERS */
-.row { margin-top: 12px; }
+.row { margin-top: 10px; }
+
 .letter {
   display: inline-block;
-  margin: 4px;
   padding: 6px 10px;
+  margin: 4px;
   border-radius: 8px;
   background: #f3f4f6;
   font-weight: 600;
 }
+
 .strike {
-  text-decoration: line-through;
   background: #fecaca;
-  color: #991b1b;
+  text-decoration: line-through;
 }
 
-/* FLAMES */
 .flames span {
   display: inline-block;
-  margin: 6px;
   padding: 10px 14px;
+  margin: 6px;
   border-radius: 10px;
   background: #e5e7eb;
   font-weight: 700;
+  transition: .3s;
 }
+
 .flames .out {
+  opacity: .35;
   text-decoration: line-through;
-  opacity: 0.4;
 }
+
 .flames .final {
   border: 3px solid #ff4d6d;
   background: #ffe4e6;
 }
 
-#status, #count { margin-top: 14px; font-weight: 600; }
-#result { margin-top: 18px; font-size: 18px; font-weight: 700; display:none; }
-#history { margin-top: 10px; font-size: 14px; color:#374151; }
+#status, #count { margin-top: 12px; font-weight: 600; }
+#result { margin-top: 16px; font-size: 18px; font-weight: 700; display:none; }
+#history { margin-top: 8px; font-size: 14px; color:#374151; }
 </style>
 </head>
 
@@ -119,8 +120,8 @@ button.secondary {
   <h1>🔥 FLAMES Test</h1>
 
   <div id="form">
-    <input id="name1" placeholder="Your Name">
-    <input id="name2" placeholder="Partner Name">
+    <input id="n1" placeholder="Your Name">
+    <input id="n2" placeholder="Partner Name">
     <button onclick="start()">Check Relationship 💖</button>
   </div>
 
@@ -128,50 +129,53 @@ button.secondary {
   <div class="row" id="row1"></div>
   <div class="row" id="row2"></div>
   <div id="count"></div>
+
   <div id="flames" class="flames"></div>
+
   <div id="result"></div>
   <div id="history"></div>
 
-  <button class="secondary" id="share" onclick="share()" style="display:none;">📤 Share</button>
-  <button class="secondary" id="reset" onclick="location.reload()" style="display:none;">🔄 Try Again</button>
+  <div id="actions" style="display:none;">
+    <button class="secondary" onclick="share()">📤 Share</button>
+    <button class="secondary" onclick="location.reload()">🔄 Restart</button>
+  </div>
 </div>
 
 <script>
-/* FLOATING HEARTS */
-setInterval(()=>spawn("❤️"),600);
-function spawn(e){
-  const el=document.createElement("div");
-  el.className="float";
-  el.innerText=e;
-  el.style.left=Math.random()*100+"vw";
-  el.style.animationDuration=(6+Math.random()*4)+"s";
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(),10000);
-}
+/* Floating hearts */
+setInterval(() => {
+  const h = document.createElement("div");
+  h.className = "heart";
+  h.innerText = "❤️";
+  h.style.left = Math.random()*100+"vw";
+  h.style.animationDuration = (6+Math.random()*4)+"s";
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(),10000);
+}, 700);
 
+/* Logic */
 let a=[], b=[], remaining=0;
-let flames=["F","L","A","M","E","S"];
-let idx=0;
+const flamesOrder = ["F","L","A","M","E","S"];
+let flamesState = [];
+let stepIndex = 0;
 
-/* START */
 function start(){
-  const n1=name1.value.trim();
-  const n2=name2.value.trim();
-  if(!n1||!n2) return alert("Enter both names 💕");
+  const name1=n1.value.trim();
+  const name2=n2.value.trim();
+  if(!name1 || !name2) return alert("Enter both names");
 
-  a=n1.toLowerCase().replace(/\s/g,"").split("");
-  b=n2.toLowerCase().replace(/\s/g,"").split("");
+  a=name1.toLowerCase().replace(/\s/g,"").split("");
+  b=name2.toLowerCase().replace(/\s/g,"").split("");
 
   form.style.display="none";
   status.innerText="Showing letters…";
 
-  row1.innerHTML=a.map(l=>`<span class="letter">${l}</span>`).join("");
-  row2.innerHTML=b.map(l=>`<span class="letter">${l}</span>`).join("");
+  row1.innerHTML = a.map(l=>`<span class="letter">${l}</span>`).join("");
+  row2.innerHTML = b.map(l=>`<span class="letter">${l}</span>`).join("");
 
-  setTimeout(strikeCommon,6000);
+  setTimeout(strikeCommon,3000);
 }
 
-/* STRIKE */
 function strikeCommon(){
   status.innerText="Striking common letters…";
   const r1=row1.children, r2=row2.children;
@@ -185,74 +189,74 @@ function strikeCommon(){
     }
   });
 
-  setTimeout(countLetters,6000);
+  setTimeout(countRemaining,3000);
 }
 
-/* COUNT */
-function countLetters(){
-  remaining=a.join("").length+b.join("").length;
-  count.innerText=`Remaining letters count: ${remaining}`;
-  status.innerText="Running FLAMES elimination…";
-  showFlames();
+function countRemaining(){
+  remaining = a.join("").length + b.join("").length;
+  count.innerText = "Remaining letters count: "+remaining;
+  status.innerText="Running FLAMES…";
+
+  initFlames();
+  setTimeout(runFlames,3000);
 }
 
-/* SHOW FLAMES */
-function showFlames(){
-  flamesBox();
-  setTimeout(eliminateFlames,6000);
+function initFlames(){
+  flamesState = flamesOrder.map(l=>({letter:l, out:false}));
+  renderFlames();
 }
 
-function flamesBox(){
-  flames.innerHTML=flames.map(l=>`<span>${l}</span>`).join("");
+function renderFlames(){
+  flames.innerHTML = flamesState.map(f =>
+    `<span class="${f.out ? 'out':''}">${f.letter}</span>`
+  ).join("");
 }
 
-/* ELIMINATION */
-function eliminateFlames(){
-  if(flames.length===1){
-    finalize(flames[0]);
+function runFlames(){
+  const active = flamesState.filter(f=>!f.out);
+  if(active.length === 1){
+    active[0].final = true;
+    flames.innerHTML = flamesState.map(f =>
+      `<span class="${f.final?'final':f.out?'out':''}">${f.letter}</span>`
+    ).join("");
+    showResult(active[0].letter);
     return;
   }
-  idx=(idx+remaining-1)%flames.length;
-  flames.splice(idx,1);
-  flamesBox();
-  setTimeout(eliminateFlames,2000);
+
+  stepIndex = (stepIndex + remaining - 1) % active.length;
+  const target = active[stepIndex];
+  target.out = true;
+
+  renderFlames();
+  setTimeout(runFlames,3000);
 }
 
-/* FINAL */
-function finalize(letter){
+function showResult(letter){
   const map={
-    F:["🤝 Friends","🤝","#a1c4fd"],
-    L:["❤️ Love","❤️","#ff9a9e"],
-    A:["🥰 Affection","🥰","#fad0c4"],
-    M:["💍 Marriage","💍","#fbc2eb"],
-    E:["😅 Enemies","😅","#cfd9df"],
-    S:["💞 Soulmates","💞","#fddb92"]
+    F:["🤝 Friends","#a1c4fd"],
+    L:["❤️ Love","#ff9a9e"],
+    A:["🥰 Affection","#fad0c4"],
+    M:["💍 Marriage","#fbc2eb"],
+    E:["😅 Enemies","#cfd9df"],
+    S:["💞 Soulmates","#fddb92"]
   };
 
-  document.body.style.background=
-    `linear-gradient(135deg,${map[letter][2]},#fff)`;
+  document.body.style.background =
+    `linear-gradient(135deg,${map[letter][1]},#fff)`;
 
-  flames.innerHTML=`<span class="final">${letter}</span>`;
+  result.innerText = map[letter][0];
   result.style.display="block";
-  result.innerText=map[letter][0];
-
-  let burst=setInterval(()=>spawn(map[letter][1]),150);
-  setTimeout(()=>clearInterval(burst),2000);
 
   localStorage.setItem("lastResult",map[letter][0]);
-  history.innerText="Last result: "+map[letter][0];
-
-  share.style.display="inline-block";
-  reset.style.display="inline-block";
+  history.innerText = "Last result: "+map[letter][0];
+  actions.style.display="block";
 }
 
-/* SHARE */
 function share(){
   navigator.clipboard.writeText("FLAMES Result: "+result.innerText);
-  alert("Result copied 💖");
+  alert("Copied to clipboard 💖");
 }
 
-/* LOAD HISTORY */
 window.onload=()=>{
   const last=localStorage.getItem("lastResult");
   if(last) history.innerText="Last result: "+last;
