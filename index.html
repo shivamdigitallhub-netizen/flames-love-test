@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔥 FLAMES Love Test</title>
+<title>🔥 FLAMES Test</title>
 
 <style>
 * { box-sizing: border-box; }
@@ -20,30 +20,29 @@ body {
   transition: background 0.6s ease;
 }
 
-/* FLOATING EMOJIS */
-.floating {
+/* FLOATING BACKGROUND EMOJI */
+.float {
   position: absolute;
   bottom: -30px;
   font-size: 22px;
   opacity: 0.8;
-  animation: floatUp linear infinite;
+  animation: rise linear infinite;
   pointer-events: none;
 }
-
-@keyframes floatUp {
-  from { transform: translateY(0) scale(1); opacity: 0.9; }
+@keyframes rise {
+  from { transform: translateY(0) scale(1); opacity: .9; }
   to { transform: translateY(-120vh) scale(1.4); opacity: 0; }
 }
 
 /* CARD */
 .card {
-  background: white;
-  padding: 32px;
+  background: #fff;
+  padding: 34px;
   border-radius: 26px;
   width: 90%;
-  max-width: 460px;
+  max-width: 480px;
   text-align: center;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+  box-shadow: 0 25px 50px rgba(0,0,0,.25);
   z-index: 10;
 }
 
@@ -59,7 +58,7 @@ input {
 }
 
 button {
-  padding: 14px 28px;
+  padding: 14px 30px;
   border-radius: 999px;
   border: none;
   font-size: 15px;
@@ -69,24 +68,15 @@ button {
   color: white;
   margin-top: 10px;
 }
-
 button.secondary {
   background: #111827;
   margin-top: 14px;
 }
 
 /* LETTERS */
-.names {
-  font-weight: 700;
-  margin-top: 10px;
-}
-
-.letters {
+.row {
   margin-top: 12px;
-  font-size: 18px;
-  word-wrap: break-word;
 }
-
 .letter {
   display: inline-block;
   margin: 4px;
@@ -95,26 +85,32 @@ button.secondary {
   background: #f3f4f6;
   font-weight: 600;
 }
-
 .strike {
   text-decoration: line-through;
   background: #fecaca;
   color: #991b1b;
 }
 
-#status, #count {
-  margin-top: 12px;
-  font-weight: 600;
-  color: #374151;
+/* FLAMES */
+.flames span {
+  display: inline-block;
+  margin: 6px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #e5e7eb;
+  font-weight: 700;
 }
 
+#status, #count {
+  margin-top: 14px;
+  font-weight: 600;
+}
 #result {
   margin-top: 18px;
   font-size: 18px;
   font-weight: 700;
   display: none;
 }
-
 #history {
   margin-top: 10px;
   font-size: 14px;
@@ -129,156 +125,140 @@ button.secondary {
   <h1>🔥 FLAMES Test</h1>
 
   <div id="form">
-    <input type="text" id="name1" placeholder="Your Name">
-    <input type="text" id="name2" placeholder="Partner Name">
+    <input id="name1" placeholder="Your Name">
+    <input id="name2" placeholder="Partner Name">
     <button onclick="start()">Check Relationship 💖</button>
   </div>
 
   <div id="status"></div>
-  <div id="names" class="names"></div>
-  <div id="letters" class="letters"></div>
+
+  <div class="row" id="row1"></div>
+  <div class="row" id="row2"></div>
+
   <div id="count"></div>
+  <div id="flames" class="flames"></div>
   <div id="result"></div>
   <div id="history"></div>
 
-  <button class="secondary" id="share" onclick="shareResult()" style="display:none;">📤 Share Result</button>
-  <button class="secondary" id="reset" onclick="resetGame()" style="display:none;">🔄 Try Again</button>
+  <button class="secondary" id="share" onclick="share()" style="display:none;">📤 Share</button>
+  <button class="secondary" id="reset" onclick="location.reload()" style="display:none;">🔄 Try Again</button>
 </div>
 
 <script>
 /* BACKGROUND HEARTS */
-function floatEmoji(emoji) {
+setInterval(() => spawn("❤️"), 600);
+function spawn(e) {
   const el = document.createElement("div");
-  el.className = "floating";
-  el.innerText = emoji;
+  el.className = "float";
+  el.innerText = e;
   el.style.left = Math.random() * 100 + "vw";
-  el.style.animationDuration = (6 + Math.random() * 4) + "s";
+  el.style.animationDuration = (6 + Math.random()*4)+"s";
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), 10000);
+  setTimeout(()=>el.remove(),10000);
 }
-setInterval(() => floatEmoji("❤️"), 500);
 
-/* GLOBAL */
-let arr1 = [], arr2 = [];
+let a=[], b=[], remainingCount=0;
 
 /* START */
 function start() {
-  const n1 = document.getElementById("name1").value.trim();
-  const n2 = document.getElementById("name2").value.trim();
-  if (!n1 || !n2) return alert("Please enter both names 💕");
+  const n1 = name1.value.trim();
+  const n2 = name2.value.trim();
+  if(!n1 || !n2) return alert("Enter both names 💕");
 
-  arr1 = n1.toLowerCase().replace(/\s/g,"").split("");
-  arr2 = n2.toLowerCase().replace(/\s/g,"").split("");
+  a = n1.toLowerCase().replace(/\s/g,"").split("");
+  b = n2.toLowerCase().replace(/\s/g,"").split("");
 
-  document.getElementById("form").style.display = "none";
-  document.getElementById("names").innerHTML =
-    `${n1}<br>${n2}`;
+  form.style.display="none";
+  status.innerText="Showing letters…";
 
-  document.getElementById("status").innerText = "Showing letters…";
-  showLetters();
+  row1.innerHTML = a.map(l=>`<span class="letter">${l}</span>`).join("");
+  row2.innerHTML = b.map(l=>`<span class="letter">${l}</span>`).join("");
 
-  setTimeout(strikeCommon, 6000);
-}
-
-/* SHOW LETTERS */
-function showLetters() {
-  const box = document.getElementById("letters");
-  box.innerHTML = "";
-  arr1.concat(arr2).forEach(l => {
-    const s = document.createElement("span");
-    s.className = "letter";
-    s.innerText = l;
-    box.appendChild(s);
-  });
+  setTimeout(strike,6000);
 }
 
 /* STRIKE COMMON */
-function strikeCommon() {
-  document.getElementById("status").innerText = "Striking common letters…";
-  const spans = document.querySelectorAll(".letter");
+function strike() {
+  status.innerText="Striking common letters…";
+  const r1=row1.children, r2=row2.children;
 
-  arr1.forEach((l, i) => {
-    const j = arr2.indexOf(l);
-    if (j !== -1) {
-      spans[i].classList.add("strike");
-      spans[arr1.length + j].classList.add("strike");
-      arr1[i] = "";
-      arr2[j] = "";
+  a.forEach((l,i)=>{
+    const j=b.indexOf(l);
+    if(j>-1){
+      r1[i].classList.add("strike");
+      r2[j].classList.add("strike");
+      a[i]=""; b[j]="";
     }
   });
 
-  setTimeout(showCount, 6000);
+  setTimeout(countRemaining,6000);
 }
 
 /* COUNT */
-function showCount() {
-  const remaining = arr1.join("").length + arr2.join("").length;
-  document.getElementById("status").innerText = "Counting remaining letters…";
-  document.getElementById("count").innerText =
-    `Remaining letters count: ${remaining}`;
+function countRemaining() {
+  remainingCount = a.join("").length + b.join("").length;
+  status.innerText="Counting remaining letters…";
+  count.innerText = `Remaining letters count: ${remainingCount}`;
 
-  setTimeout(() => runFlames(remaining), 6000);
+  setTimeout(startFlames,6000);
 }
 
 /* FLAMES ELIMINATION */
-function runFlames(count) {
-  document.getElementById("status").innerText = "Running FLAMES test…";
-  let flames = ["Friends","Love","Affection","Marriage","Enemies","Soulmates"];
-  let i = 0;
-  while (flames.length > 1) {
-    i = (i + count - 1) % flames.length;
-    flames.splice(i, 1);
-  }
-  setTimeout(() => showResult(flames[0]), 3000);
+let flamesArr=["F","L","A","M","E","S"];
+let index=0;
+
+function startFlames(){
+  status.innerText="Running FLAMES elimination…";
+  flames.innerHTML = flamesArr.map(l=>`<span>${l}</span>`).join("");
+  eliminate();
 }
 
-/* RESULT */
-function showResult(result) {
-  const map = {
-    Friends:{t:"🤝 Friends – Besties forever!",c:"#a1c4fd",e:"🤝"},
-    Love:{t:"❤️ Love – Sparks are flying!",c:"#ff9a9e",e:"❤️"},
-    Affection:{t:"🥰 Affection – Deep feelings!",c:"#fad0c4",e:"🥰"},
-    Marriage:{t:"💍 Marriage – Wedding bells!",c:"#fbc2eb",e:"💍"},
-    Enemies:{t:"😅 Enemies – Love-hate vibes!",c:"#cfd9df",e:"😅"},
-    Soulmates:{t:"💞 Soulmates – Meant to be!",c:"#fddb92",e:"💞"}
+function eliminate(){
+  if(flamesArr.length===1){
+    showResult(flamesArr[0]);
+    return;
+  }
+  index = (index + remainingCount -1) % flamesArr.length;
+  flamesArr.splice(index,1);
+  flames.innerHTML = flamesArr.map(l=>`<span>${l}</span>`).join("");
+  setTimeout(eliminate,2000);
+}
+
+/* FINAL RESULT */
+function showResult(letter){
+  const map={
+    F:["🤝 Friends","🤝","#a1c4fd"],
+    L:["❤️ Love","❤️","#ff9a9e"],
+    A:["🥰 Affection","🥰","#fad0c4"],
+    M:["💍 Marriage","💍","#fbc2eb"],
+    E:["😅 Enemies","😅","#cfd9df"],
+    S:["💞 Soulmates","💞","#fddb92"]
   };
 
-  document.body.style.background =
-    `linear-gradient(135deg, ${map[result].c}, #ffffff)`;
+  body.style.background=`linear-gradient(135deg,${map[letter][2]},#fff)`;
+  result.style.display="block";
+  result.innerText=map[letter][0];
 
-  document.getElementById("status").innerText = "";
-  document.getElementById("result").style.display = "block";
-  document.getElementById("result").innerText = map[result].t;
+  let burst=setInterval(()=>spawn(map[letter][1]),150);
+  setTimeout(()=>clearInterval(burst),2000);
 
-  /* RESULT-BASED EMOJI BURST */
-  let burst = setInterval(() => floatEmoji(map[result].e), 150);
-  setTimeout(() => clearInterval(burst), 2000);
+  localStorage.setItem("lastResult",map[letter][0]);
+  history.innerText="Last result: "+map[letter][0];
 
-  localStorage.setItem("lastResult", map[result].t);
-  document.getElementById("history").innerText =
-    "Last result: " + map[result].t;
-
-  document.getElementById("share").style.display = "inline-block";
-  document.getElementById("reset").style.display = "inline-block";
+  share.style.display="inline-block";
+  reset.style.display="inline-block";
 }
 
 /* SHARE */
-function shareResult() {
-  navigator.clipboard.writeText(
-    "Our FLAMES result is: " + document.getElementById("result").innerText
-  );
-  alert("Result copied! Share it 💖");
-}
-
-/* RESET */
-function resetGame() {
-  location.reload();
+function share(){
+  navigator.clipboard.writeText("FLAMES Result: "+result.innerText);
+  alert("Result copied 💖");
 }
 
 /* LOAD HISTORY */
-window.onload = () => {
-  const last = localStorage.getItem("lastResult");
-  if (last) document.getElementById("history").innerText = "Last result: " + last;
+window.onload=()=>{
+  const last=localStorage.getItem("lastResult");
+  if(last) history.innerText="Last result: "+last;
 };
 </script>
 
