@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🔥 FLAMES Test</title>
 
 <style>
@@ -11,13 +11,13 @@
 body{
   margin:0;
   height:100vh;
-  font-family:system-ui,-apple-system,sans-serif;
+  font-family:system-ui,sans-serif;
   background:linear-gradient(135deg,#ff9a9e,#fad0c4);
   display:flex;
   justify-content:center;
   align-items:center;
   overflow:hidden;
-  transition:background .6s;
+  transition:background .5s;
 }
 
 /* Floating emoji */
@@ -34,16 +34,16 @@ body{
 
 .card{
   background:#fff;
-  padding:32px;
+  padding:30px;
   border-radius:22px;
   width:92%;
   max-width:480px;
   text-align:center;
-  box-shadow:0 25px 50px rgba(0,0,0,.25);
+  box-shadow:0 25px 45px rgba(0,0,0,.25);
   z-index:2;
 }
 
-h1{margin-bottom:12px}
+h1{margin-bottom:10px}
 
 input{
   width:100%;
@@ -51,14 +51,12 @@ input{
   margin-bottom:10px;
   border-radius:10px;
   border:1px solid #ddd;
-  font-size:15px;
 }
 
 button{
   padding:14px 28px;
   border-radius:999px;
   border:none;
-  font-size:15px;
   font-weight:600;
   background:#ff4d6d;
   color:#fff;
@@ -68,10 +66,10 @@ button{
 
 button.secondary{
   background:#111827;
-  margin:8px;
+  margin:6px;
 }
 
-.row{margin-top:12px}
+.row{margin-top:10px}
 
 .letter{
   display:inline-block;
@@ -94,7 +92,6 @@ button.secondary{
   border-radius:10px;
   background:#e5e7eb;
   font-weight:700;
-  transition:.35s;
 }
 
 .flames .out{
@@ -108,21 +105,9 @@ button.secondary{
 }
 
 #status,#count{margin-top:12px;font-weight:600}
-#result{
-  margin-top:18px;
-  font-size:20px;
-  font-weight:700;
-  display:none;
-}
-#history{
-  margin-top:10px;
-  font-size:14px;
-  color:#374151;
-  display:none;
-}
-#history strong{color:#ff4d6d}
+#result{margin-top:16px;font-size:20px;font-weight:700}
+#history{margin-top:10px;font-size:14px;color:#374151}
 
-#actions{display:none;margin-top:12px}
 </style>
 </head>
 
@@ -132,16 +117,17 @@ button.secondary{
   <h1>🔥 FLAMES Test</h1>
 
   <div id="form">
-    <input id="n1" placeholder="Your Name">
-    <input id="n2" placeholder="Partner Name">
+    <input id="name1" placeholder="Your Name">
+    <input id="name2" placeholder="Partner Name">
     <button onclick="start()">Check Relationship 💖</button>
   </div>
 
   <div id="status"></div>
+
   <div class="row" id="row1"></div>
   <div class="row" id="row2"></div>
-  <div id="count"></div>
 
+  <div id="count"></div>
   <div id="flames" class="flames"></div>
 
   <div id="result"></div>
@@ -154,35 +140,44 @@ button.secondary{
 </div>
 
 <script>
-/* ---------- FLOATING EMOJI SYSTEM ---------- */
-let currentEmoji = "❤️";
+/* ---------- FLOATING EMOJI ---------- */
+let floatingEmoji = "❤️";
 
 setInterval(()=>{
   const e=document.createElement("div");
   e.className="float";
-  e.innerText=currentEmoji;
+  e.innerText=floatingEmoji;
   e.style.left=Math.random()*100+"vw";
   e.style.animationDuration=(4+Math.random()*3)+"s";
   document.body.appendChild(e);
   setTimeout(()=>e.remove(),7000);
 },600);
 
-/* ---------- GLOBALS ---------- */
-const flamesLetters=["F","L","A","M","E","S"];
-let flamesState=[],stepIndex=0,remaining=0;
+/* ---------- DATA ---------- */
+const flamesMap={
+  F:{text:"🤝 Friends",bg:"#a1c4fd",emoji:"🤝"},
+  L:{text:"❤️ Love",bg:"#ff9a9e",emoji:"❤️"},
+  A:{text:"🥰 Affection",bg:"#fad0c4",emoji:"🥰"},
+  M:{text:"💍 Marriage",bg:"#fbc2eb",emoji:"💍"},
+  E:{text:"😅 Enemies",bg:"#cfd9df",emoji:"😅"},
+  S:{text:"💞 Soulmates",bg:"#fddb92",emoji:"💞"}
+};
+
+let remaining=0,step=0;
+let flamesState=[];
 let lastName1="",lastName2="";
 
 /* ---------- START ---------- */
 function start(){
-  const name1=n1.value.trim();
-  const name2=n2.value.trim();
-  if(!name1||!name2) return alert("Enter both names");
+  const n1=name1.value.trim();
+  const n2=name2.value.trim();
+  if(!n1||!n2) return alert("Enter both names");
 
-  lastName1=name1;
-  lastName2=name2;
+  lastName1=n1;
+  lastName2=n2;
 
-  const a=name1.toLowerCase().replace(/\s/g,"").split("");
-  const b=name2.toLowerCase().replace(/\s/g,"").split("");
+  const a=n1.toLowerCase().replace(/\s/g,"").split("");
+  const b=n2.toLowerCase().replace(/\s/g,"").split("");
 
   form.style.display="none";
   status.innerText="Comparing names…";
@@ -201,7 +196,7 @@ function strikeCommon(a,b){
     if(j>-1){
       r1[i].classList.add("strike");
       r2[j].classList.add("strike");
-      a[i]="";b[j]="";
+      a[i]=""; b[j]="";
     }
   });
 
@@ -209,12 +204,12 @@ function strikeCommon(a,b){
   count.innerText="Remaining letters count: "+remaining;
 
   initFlames();
-  setTimeout(runFlames,700);
+  setTimeout(runFlames,600);
 }
 
 /* ---------- FLAMES ---------- */
 function initFlames(){
-  flamesState=flamesLetters.map(l=>({l,out:false,final:false}));
+  flamesState=["F","L","A","M","E","S"].map(l=>({l,out:false,final:false}));
   renderFlames();
 }
 
@@ -234,58 +229,43 @@ function runFlames(){
     return;
   }
 
-  stepIndex=(stepIndex+remaining-1)%active.length;
-  active[stepIndex].out=true;
-
+  step=(step+remaining-1)%active.length;
+  active[step].out=true;
   renderFlames();
+
   setTimeout(runFlames,650);
 }
 
 /* ---------- RESULT ---------- */
-function showResult(l){
-  const map={
-    F:{text:"🤝 Friends",bg:"#a1c4fd",emoji:"🤝"},
-    L:{text:"❤️ Love",bg:"#ff9a9e",emoji:"❤️"},
-    A:{text:"🥰 Affection",bg:"#fad0c4",emoji:"🥰"},
-    M:{text:"💍 Marriage",bg:"#fbc2eb",emoji:"💍"},
-    E:{text:"😅 Enemies",bg:"#cfd9df",emoji:"😅"},
-    S:{text:"💞 Soulmates",bg:"#fddb92",emoji:"💞"}
-  };
+function showResult(letter){
+  const r=flamesMap[letter];
 
-  document.body.style.background=
-    `linear-gradient(135deg,${map[l].bg},#fff)`;
+  document.body.style.background=`linear-gradient(135deg,${r.bg},#fff)`;
+  floatingEmoji=r.emoji;
 
-  currentEmoji = map[l].emoji;
-
-  result.innerText=map[l].text;
-  result.style.display="block";
+  result.innerText=r.text;
 
   const save={
     name1:lastName1,
     name2:lastName2,
-    result:map[l].text
+    result:r.text
   };
   localStorage.setItem("flamesLast",JSON.stringify(save));
 
   history.innerHTML=
     `Last result:<br>
-     <strong>${save.name1}</strong> ${map[l].emoji} <strong>${save.name2}</strong><br>
+     <strong>${save.name1}</strong> ${r.emoji} <strong>${save.name2}</strong><br>
      ${save.result}`;
-  history.style.display="block";
-
-  actions.style.display="block";
 }
 
 /* ---------- ACTIONS ---------- */
+function restart(){ location.reload(); }
+
 function share(){
   navigator.clipboard.writeText(
-    `FLAMES Result:\n${lastName1} ${currentEmoji} ${lastName2}\n${result.innerText}`
+    `FLAMES Result:\n${lastName1} ${floatingEmoji} ${lastName2}\n${result.innerText}`
   );
   alert("Result copied 💖");
-}
-
-function restart(){
-  location.reload();
 }
 
 /* ---------- LOAD HISTORY ---------- */
@@ -297,7 +277,6 @@ window.onload=()=>{
       `Last result:<br>
        <strong>${last.name1}</strong> ❤️ <strong>${last.name2}</strong><br>
        ${last.result}`;
-    history.style.display="block";
   }
 };
 </script>
