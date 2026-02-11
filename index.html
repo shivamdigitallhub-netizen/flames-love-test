@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔥 FLAMES Test</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FLAMES Love Experience | Digital Web Hive</title>
 
 <style>
 *{box-sizing:border-box}
@@ -11,13 +11,13 @@
 body{
   margin:0;
   height:100vh;
-  font-family:system-ui,sans-serif;
+  font-family:system-ui,-apple-system,sans-serif;
   background:linear-gradient(135deg,#ff9a9e,#fad0c4);
   display:flex;
   justify-content:center;
   align-items:center;
   overflow:hidden;
-  transition:background .5s;
+  transition:background .6s;
 }
 
 /* Floating emoji */
@@ -32,18 +32,34 @@ body{
   to{transform:translateY(-120vh);opacity:0}
 }
 
+/* Card */
 .card{
   background:#fff;
   padding:30px;
   border-radius:22px;
   width:92%;
-  max-width:480px;
+  max-width:520px;
   text-align:center;
   box-shadow:0 25px 45px rgba(0,0,0,.25);
   z-index:2;
 }
 
-h1{margin-bottom:10px}
+/* Branding */
+.brand{
+  font-weight:800;
+  font-size:18px;
+  letter-spacing:.5px;
+}
+.tagline{
+  font-size:12px;
+  color:#6b7280;
+  margin-bottom:12px;
+}
+
+h1{
+  margin:10px 0 12px;
+  font-size:22px;
+}
 
 input{
   width:100%;
@@ -67,6 +83,10 @@ button{
 button.secondary{
   background:#111827;
   margin:6px;
+}
+
+button.whatsapp{
+  background:#25D366;
 }
 
 .row{margin-top:10px}
@@ -104,30 +124,58 @@ button.secondary{
   background:#ffe4e6;
 }
 
-#status,#count{margin-top:12px;font-weight:600}
-#result{margin-top:16px;font-size:20px;font-weight:700}
-#history{margin-top:10px;font-size:14px;color:#374151}
+#status,#count{
+  margin-top:12px;
+  font-weight:600;
+}
 
+#result{
+  margin-top:16px;
+  font-size:20px;
+  font-weight:700;
+}
+
+#history{
+  margin-top:10px;
+  font-size:14px;
+  color:#374151;
+}
+
+#cta{
+  margin-top:16px;
+  font-size:13px;
+  color:#374151;
+}
+
+#cta strong{
+  color:#ff4d6d;
+}
+
+#actions{
+  margin-top:12px;
+}
 </style>
 </head>
 
 <body>
 
 <div class="card">
-  <h1>🔥 FLAMES Test</h1>
+  <div class="brand">Digital Web Hive</div>
+  <div class="tagline">Interactive Experiences That Convert</div>
+
+  <h1>FLAMES Love Experience ❤️</h1>
 
   <div id="form">
     <input id="name1" placeholder="Your Name">
     <input id="name2" placeholder="Partner Name">
-    <button onclick="start()">Check Relationship 💖</button>
+    <button onclick="start()">Check Compatibility</button>
   </div>
 
   <div id="status"></div>
-
   <div class="row" id="row1"></div>
   <div class="row" id="row2"></div>
-
   <div id="count"></div>
+
   <div id="flames" class="flames"></div>
 
   <div id="result"></div>
@@ -135,14 +183,20 @@ button.secondary{
 
   <div id="actions">
     <button class="secondary" onclick="share()">📤 Share</button>
-    <button class="secondary" onclick="restart()">🔄 Restart</button>
+    <button class="secondary" onclick="location.reload()">🔄 Restart</button>
+    <br>
+    <button class="whatsapp" onclick="openWhatsApp()">💬 Chat on WhatsApp</button>
+  </div>
+
+  <div id="cta">
+    Want interactive campaigns like this?<br>
+    <strong>Digital Web Hive</strong> • <span>digitalwebhive.com</span>
   </div>
 </div>
 
 <script>
-/* ---------- FLOATING EMOJI ---------- */
-let floatingEmoji = "❤️";
-
+/* Floating emoji system */
+let floatingEmoji="❤️";
 setInterval(()=>{
   const e=document.createElement("div");
   e.className="float";
@@ -153,7 +207,6 @@ setInterval(()=>{
   setTimeout(()=>e.remove(),7000);
 },600);
 
-/* ---------- DATA ---------- */
 const flamesMap={
   F:{text:"🤝 Friends",bg:"#a1c4fd",emoji:"🤝"},
   L:{text:"❤️ Love",bg:"#ff9a9e",emoji:"❤️"},
@@ -163,122 +216,84 @@ const flamesMap={
   S:{text:"💞 Soulmates",bg:"#fddb92",emoji:"💞"}
 };
 
-let remaining=0,step=0;
-let flamesState=[];
-let lastName1="",lastName2="";
+let remaining=0,step=0,flamesState=[],n1="",n2="";
 
-/* ---------- START ---------- */
 function start(){
-  const n1=name1.value.trim();
-  const n2=name2.value.trim();
-  if(!n1||!n2) return alert("Enter both names");
-
-  lastName1=n1;
-  lastName2=n2;
+  n1=name1.value.trim();
+  n2=name2.value.trim();
+  if(!n1||!n2) return alert("Please enter both names");
 
   const a=n1.toLowerCase().replace(/\s/g,"").split("");
   const b=n2.toLowerCase().replace(/\s/g,"").split("");
 
   form.style.display="none";
-  status.innerText="Comparing names…";
+  status.innerText="Analyzing compatibility…";
 
   row1.innerHTML=a.map(l=>`<span class="letter">${l}</span>`).join("");
   row2.innerHTML=b.map(l=>`<span class="letter">${l}</span>`).join("");
 
-  setTimeout(()=>strikeCommon(a,b),800);
+  setTimeout(()=>strike(a,b),800);
 }
 
-/* ---------- STRIKE ---------- */
-function strikeCommon(a,b){
+function strike(a,b){
   const r1=row1.children,r2=row2.children;
   a.forEach((l,i)=>{
     const j=b.indexOf(l);
     if(j>-1){
       r1[i].classList.add("strike");
       r2[j].classList.add("strike");
-      a[i]=""; b[j]="";
+      a[i]="";b[j]="";
     }
   });
 
   remaining=a.join("").length+b.join("").length;
-  count.innerText="Remaining letters count: "+remaining;
+  count.innerText="Compatibility score: "+remaining;
 
-  initFlames();
-  setTimeout(runFlames,600);
-}
-
-/* ---------- FLAMES ---------- */
-function initFlames(){
-  flamesState=["F","L","A","M","E","S"].map(l=>({l,out:false,final:false}));
+  flamesState=["F","L","A","M","E","S"].map(l=>({l,out:false}));
   renderFlames();
+  setTimeout(runFlames,700);
 }
 
 function renderFlames(){
   flames.innerHTML=flamesState.map(f=>
-    `<span class="${f.final?'final':f.out?'out':''}">${f.l}</span>`
+    `<span class="${f.out?'out':''}">${f.l}</span>`
   ).join("");
 }
 
 function runFlames(){
-  const active=flamesState.filter(f=>!f.out&&!f.final);
-
+  const active=flamesState.filter(f=>!f.out);
   if(active.length===1){
-    active[0].final=true;
-    renderFlames();
+    flames.innerHTML=`<span class="final">${active[0].l}</span>`;
     setTimeout(()=>showResult(active[0].l),900);
     return;
   }
-
   step=(step+remaining-1)%active.length;
   active[step].out=true;
   renderFlames();
-
   setTimeout(runFlames,650);
 }
 
-/* ---------- RESULT ---------- */
 function showResult(letter){
   const r=flamesMap[letter];
-
   document.body.style.background=`linear-gradient(135deg,${r.bg},#fff)`;
   floatingEmoji=r.emoji;
-
   result.innerText=r.text;
-
-  const save={
-    name1:lastName1,
-    name2:lastName2,
-    result:r.text
-  };
-  localStorage.setItem("flamesLast",JSON.stringify(save));
-
-  history.innerHTML=
-    `Last result:<br>
-     <strong>${save.name1}</strong> ${r.emoji} <strong>${save.name2}</strong><br>
-     ${save.result}`;
+  history.innerHTML=`Last check: <strong>${n1}</strong> ${r.emoji} <strong>${n2}</strong>`;
 }
-
-/* ---------- ACTIONS ---------- */
-function restart(){ location.reload(); }
 
 function share(){
   navigator.clipboard.writeText(
-    `FLAMES Result:\n${lastName1} ${floatingEmoji} ${lastName2}\n${result.innerText}`
+    `FLAMES Result by Digital Web Hive:\n${n1} ${floatingEmoji} ${n2}\n${result.innerText}`
   );
-  alert("Result copied 💖");
+  alert("Result copied 🚀");
 }
 
-/* ---------- LOAD HISTORY ---------- */
-window.onload=()=>{
-  const data=localStorage.getItem("flamesLast");
-  if(data){
-    const last=JSON.parse(data);
-    history.innerHTML=
-      `Last result:<br>
-       <strong>${last.name1}</strong> ❤️ <strong>${last.name2}</strong><br>
-       ${last.result}`;
-  }
-};
+function openWhatsApp(){
+  const msg = encodeURIComponent(
+    "Hi Digital Web Hive! I liked this interactive FLAMES experience. I want something similar for my brand."
+  );
+  window.open("https://wa.me/64212456560?text="+msg,"_blank");
+}
 </script>
 
 </body>
