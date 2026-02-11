@@ -20,17 +20,18 @@ body {
   transition: background 0.6s ease;
 }
 
-/* FLOATING HEARTS */
-.heart {
+/* FLOATING EMOJIS */
+.floating {
   position: absolute;
   bottom: -30px;
   font-size: 22px;
-  opacity: 0.7;
+  opacity: 0.8;
   animation: floatUp linear infinite;
   pointer-events: none;
 }
+
 @keyframes floatUp {
-  from { transform: translateY(0) scale(1); opacity: 0.8; }
+  from { transform: translateY(0) scale(1); opacity: 0.9; }
   to { transform: translateY(-120vh) scale(1.4); opacity: 0; }
 }
 
@@ -40,7 +41,7 @@ body {
   padding: 32px;
   border-radius: 26px;
   width: 90%;
-  max-width: 440px;
+  max-width: 460px;
   text-align: center;
   box-shadow: 0 25px 50px rgba(0,0,0,0.25);
   z-index: 10;
@@ -74,9 +75,14 @@ button.secondary {
   margin-top: 14px;
 }
 
-/* LETTER DISPLAY */
+/* LETTERS */
+.names {
+  font-weight: 700;
+  margin-top: 10px;
+}
+
 .letters {
-  margin-top: 16px;
+  margin-top: 12px;
   font-size: 18px;
   word-wrap: break-word;
 }
@@ -96,7 +102,7 @@ button.secondary {
   color: #991b1b;
 }
 
-#count, #status {
+#status, #count {
   margin-top: 12px;
   font-weight: 600;
   color: #374151;
@@ -129,6 +135,7 @@ button.secondary {
   </div>
 
   <div id="status"></div>
+  <div id="names" class="names"></div>
   <div id="letters" class="letters"></div>
   <div id="count"></div>
   <div id="result"></div>
@@ -139,36 +146,38 @@ button.secondary {
 </div>
 
 <script>
-/* FLOATING HEARTS */
-function createHeart() {
-  const heart = document.createElement("div");
-  heart.className = "heart";
-  heart.innerText = "❤️";
-  heart.style.left = Math.random() * 100 + "vw";
-  heart.style.animationDuration = (6 + Math.random() * 4) + "s";
-  document.body.appendChild(heart);
-  setTimeout(() => heart.remove(), 10000);
+/* BACKGROUND HEARTS */
+function floatEmoji(emoji) {
+  const el = document.createElement("div");
+  el.className = "floating";
+  el.innerText = emoji;
+  el.style.left = Math.random() * 100 + "vw";
+  el.style.animationDuration = (6 + Math.random() * 4) + "s";
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 10000);
 }
-setInterval(createHeart, 500);
+setInterval(() => floatEmoji("❤️"), 500);
 
 /* GLOBAL */
 let arr1 = [], arr2 = [];
 
 /* START */
 function start() {
-  const n1 = document.getElementById("name1").value.toLowerCase().replace(/\s/g,"");
-  const n2 = document.getElementById("name2").value.toLowerCase().replace(/\s/g,"");
+  const n1 = document.getElementById("name1").value.trim();
+  const n2 = document.getElementById("name2").value.trim();
   if (!n1 || !n2) return alert("Please enter both names 💕");
 
-  arr1 = n1.split("");
-  arr2 = n2.split("");
+  arr1 = n1.toLowerCase().replace(/\s/g,"").split("");
+  arr2 = n2.toLowerCase().replace(/\s/g,"").split("");
 
   document.getElementById("form").style.display = "none";
-  document.getElementById("status").innerText = "Showing letters…";
+  document.getElementById("names").innerHTML =
+    `${n1}<br>${n2}`;
 
+  document.getElementById("status").innerText = "Showing letters…";
   showLetters();
 
-  setTimeout(strikeCommon, 10000);
+  setTimeout(strikeCommon, 6000);
 }
 
 /* SHOW LETTERS */
@@ -176,10 +185,10 @@ function showLetters() {
   const box = document.getElementById("letters");
   box.innerHTML = "";
   arr1.concat(arr2).forEach(l => {
-    const span = document.createElement("span");
-    span.className = "letter";
-    span.innerText = l;
-    box.appendChild(span);
+    const s = document.createElement("span");
+    s.className = "letter";
+    s.innerText = l;
+    box.appendChild(s);
   });
 }
 
@@ -198,58 +207,56 @@ function strikeCommon() {
     }
   });
 
-  setTimeout(showCount, 10000);
+  setTimeout(showCount, 6000);
 }
 
 /* COUNT */
 function showCount() {
-  document.getElementById("status").innerText = "Counting remaining letters…";
   const remaining = arr1.join("").length + arr2.join("").length;
+  document.getElementById("status").innerText = "Counting remaining letters…";
   document.getElementById("count").innerText =
     `Remaining letters count: ${remaining}`;
 
-  setTimeout(() => flamesResult(remaining), 10000);
+  setTimeout(() => runFlames(remaining), 6000);
 }
 
-/* FLAMES */
-function flamesResult(count) {
+/* FLAMES ELIMINATION */
+function runFlames(count) {
   document.getElementById("status").innerText = "Running FLAMES test…";
-
   let flames = ["Friends","Love","Affection","Marriage","Enemies","Soulmates"];
   let i = 0;
   while (flames.length > 1) {
     i = (i + count - 1) % flames.length;
     flames.splice(i, 1);
   }
-
   setTimeout(() => showResult(flames[0]), 3000);
 }
 
-/* SHOW RESULT */
+/* RESULT */
 function showResult(result) {
-  const data = {
-    Friends:{t:"🤝 Friends – Besties forever!",c:"#a1c4fd"},
-    Love:{t:"❤️ Love – Sparks are flying!",c:"#ff9a9e"},
-    Affection:{t:"🥰 Affection – Deep feelings!",c:"#fad0c4"},
-    Marriage:{t:"💍 Marriage – Wedding bells!",c:"#fbc2eb"},
-    Enemies:{t:"😅 Enemies – Love-hate vibes!",c:"#cfd9df"},
-    Soulmates:{t:"💞 Soulmates – Meant to be!",c:"#fddb92"}
+  const map = {
+    Friends:{t:"🤝 Friends – Besties forever!",c:"#a1c4fd",e:"🤝"},
+    Love:{t:"❤️ Love – Sparks are flying!",c:"#ff9a9e",e:"❤️"},
+    Affection:{t:"🥰 Affection – Deep feelings!",c:"#fad0c4",e:"🥰"},
+    Marriage:{t:"💍 Marriage – Wedding bells!",c:"#fbc2eb",e:"💍"},
+    Enemies:{t:"😅 Enemies – Love-hate vibes!",c:"#cfd9df",e:"😅"},
+    Soulmates:{t:"💞 Soulmates – Meant to be!",c:"#fddb92",e:"💞"}
   };
 
   document.body.style.background =
-    `linear-gradient(135deg, ${data[result].c}, #ffffff)`;
+    `linear-gradient(135deg, ${map[result].c}, #ffffff)`;
 
   document.getElementById("status").innerText = "";
   document.getElementById("result").style.display = "block";
-  document.getElementById("result").innerText = data[result].t;
+  document.getElementById("result").innerText = map[result].t;
 
-  localStorage.setItem("lastResult", data[result].t);
-  document.getElementById("history").innerText =
-    "Last result: " + data[result].t;
-
-  /* HEART BURST */
-  let burst = setInterval(createHeart, 120);
+  /* RESULT-BASED EMOJI BURST */
+  let burst = setInterval(() => floatEmoji(map[result].e), 150);
   setTimeout(() => clearInterval(burst), 2000);
+
+  localStorage.setItem("lastResult", map[result].t);
+  document.getElementById("history").innerText =
+    "Last result: " + map[result].t;
 
   document.getElementById("share").style.display = "inline-block";
   document.getElementById("reset").style.display = "inline-block";
@@ -257,8 +264,9 @@ function showResult(result) {
 
 /* SHARE */
 function shareResult() {
-  const text = document.getElementById("result").innerText;
-  navigator.clipboard.writeText("Our FLAMES result is: " + text + " ❤️");
+  navigator.clipboard.writeText(
+    "Our FLAMES result is: " + document.getElementById("result").innerText
+  );
   alert("Result copied! Share it 💖");
 }
 
