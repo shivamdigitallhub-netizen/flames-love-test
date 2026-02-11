@@ -20,12 +20,12 @@ body{
   transition:background .6s;
 }
 
-/* Floating hearts */
-.heart{
+/* Floating emoji */
+.float{
   position:absolute;
   bottom:-20px;
-  font-size:18px;
-  opacity:.8;
+  font-size:20px;
+  opacity:.85;
   animation:floatUp linear infinite;
 }
 @keyframes floatUp{
@@ -118,6 +118,7 @@ button.secondary{
   margin-top:10px;
   font-size:14px;
   color:#374151;
+  display:none;
 }
 #history strong{color:#ff4d6d}
 
@@ -153,23 +154,25 @@ button.secondary{
 </div>
 
 <script>
-/* Floating hearts */
+/* ---------- FLOATING EMOJI SYSTEM ---------- */
+let currentEmoji = "❤️";
+
 setInterval(()=>{
-  const h=document.createElement("div");
-  h.className="heart";
-  h.innerText="❤️";
-  h.style.left=Math.random()*100+"vw";
-  h.style.animationDuration=(4+Math.random()*3)+"s";
-  document.body.appendChild(h);
-  setTimeout(()=>h.remove(),7000);
+  const e=document.createElement("div");
+  e.className="float";
+  e.innerText=currentEmoji;
+  e.style.left=Math.random()*100+"vw";
+  e.style.animationDuration=(4+Math.random()*3)+"s";
+  document.body.appendChild(e);
+  setTimeout(()=>e.remove(),7000);
 },600);
 
-/* Globals */
+/* ---------- GLOBALS ---------- */
 const flamesLetters=["F","L","A","M","E","S"];
 let flamesState=[],stepIndex=0,remaining=0;
 let lastName1="",lastName2="";
 
-/* Start */
+/* ---------- START ---------- */
 function start(){
   const name1=n1.value.trim();
   const name2=n2.value.trim();
@@ -190,7 +193,7 @@ function start(){
   setTimeout(()=>strikeCommon(a,b),800);
 }
 
-/* Strike common letters */
+/* ---------- STRIKE ---------- */
 function strikeCommon(a,b){
   const r1=row1.children,r2=row2.children;
   a.forEach((l,i)=>{
@@ -209,27 +212,25 @@ function strikeCommon(a,b){
   setTimeout(runFlames,700);
 }
 
-/* FLAMES init */
+/* ---------- FLAMES ---------- */
 function initFlames(){
   flamesState=flamesLetters.map(l=>({l,out:false,final:false}));
   renderFlames();
 }
 
-/* Render */
 function renderFlames(){
   flames.innerHTML=flamesState.map(f=>
     `<span class="${f.final?'final':f.out?'out':''}">${f.l}</span>`
   ).join("");
 }
 
-/* Run elimination */
 function runFlames(){
   const active=flamesState.filter(f=>!f.out&&!f.final);
 
   if(active.length===1){
     active[0].final=true;
     renderFlames();
-    setTimeout(()=>showResult(active[0].l),1000);
+    setTimeout(()=>showResult(active[0].l),900);
     return;
   }
 
@@ -237,53 +238,57 @@ function runFlames(){
   active[stepIndex].out=true;
 
   renderFlames();
-  setTimeout(runFlames,700);
+  setTimeout(runFlames,650);
 }
 
-/* Result */
+/* ---------- RESULT ---------- */
 function showResult(l){
   const map={
-    F:["🤝 Friends","#a1c4fd"],
-    L:["❤️ Love","#ff9a9e"],
-    A:["🥰 Affection","#fad0c4"],
-    M:["💍 Marriage","#fbc2eb"],
-    E:["😅 Enemies","#cfd9df"],
-    S:["💞 Soulmates","#fddb92"]
+    F:{text:"🤝 Friends",bg:"#a1c4fd",emoji:"🤝"},
+    L:{text:"❤️ Love",bg:"#ff9a9e",emoji:"❤️"},
+    A:{text:"🥰 Affection",bg:"#fad0c4",emoji:"🥰"},
+    M:{text:"💍 Marriage",bg:"#fbc2eb",emoji:"💍"},
+    E:{text:"😅 Enemies",bg:"#cfd9df",emoji:"😅"},
+    S:{text:"💞 Soulmates",bg:"#fddb92",emoji:"💞"}
   };
 
-  document.body.style.background=`linear-gradient(135deg,${map[l][1]},#fff)`;
-  result.innerText=map[l][0];
+  document.body.style.background=
+    `linear-gradient(135deg,${map[l].bg},#fff)`;
+
+  currentEmoji = map[l].emoji;
+
+  result.innerText=map[l].text;
   result.style.display="block";
 
   const save={
     name1:lastName1,
     name2:lastName2,
-    result:map[l][0]
+    result:map[l].text
   };
   localStorage.setItem("flamesLast",JSON.stringify(save));
 
   history.innerHTML=
     `Last result:<br>
-     <strong>${save.name1}</strong> ❤️ <strong>${save.name2}</strong><br>
+     <strong>${save.name1}</strong> ${map[l].emoji} <strong>${save.name2}</strong><br>
      ${save.result}`;
+  history.style.display="block";
 
   actions.style.display="block";
 }
 
-/* Share */
+/* ---------- ACTIONS ---------- */
 function share(){
   navigator.clipboard.writeText(
-    `FLAMES Result:\n${lastName1} ❤️ ${lastName2}\n${result.innerText}`
+    `FLAMES Result:\n${lastName1} ${currentEmoji} ${lastName2}\n${result.innerText}`
   );
   alert("Result copied 💖");
 }
 
-/* Restart */
 function restart(){
   location.reload();
 }
 
-/* Load last history */
+/* ---------- LOAD HISTORY ---------- */
 window.onload=()=>{
   const data=localStorage.getItem("flamesLast");
   if(data){
@@ -292,6 +297,7 @@ window.onload=()=>{
       `Last result:<br>
        <strong>${last.name1}</strong> ❤️ <strong>${last.name2}</strong><br>
        ${last.result}`;
+    history.style.display="block";
   }
 };
 </script>
