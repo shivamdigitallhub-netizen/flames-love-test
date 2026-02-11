@@ -1,116 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>🔥 FLAMES Test</title>
 
 <style>
-* { box-sizing: border-box; }
+*{box-sizing:border-box}
 
-body {
-  margin: 0;
-  height: 100vh;
-  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-  font-family: system-ui, -apple-system, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  transition: background .5s;
+body{
+  margin:0;
+  height:100vh;
+  font-family:system-ui,-apple-system,sans-serif;
+  background:linear-gradient(135deg,#ff9a9e,#fad0c4);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+  transition:background .6s;
 }
 
 /* Floating hearts */
-.heart {
-  position: absolute;
-  bottom: -30px;
-  font-size: 20px;
-  animation: floatUp linear infinite;
-  opacity: .8;
-  pointer-events: none;
+.heart{
+  position:absolute;
+  bottom:-20px;
+  font-size:18px;
+  opacity:.8;
+  animation:floatUp linear infinite;
 }
-@keyframes floatUp {
-  to { transform: translateY(-120vh); opacity: 0; }
-}
-
-.card {
-  background: #fff;
-  padding: 32px;
-  border-radius: 24px;
-  width: 90%;
-  max-width: 480px;
-  text-align: center;
-  box-shadow: 0 20px 45px rgba(0,0,0,.25);
-  z-index: 2;
+@keyframes floatUp{
+  to{transform:translateY(-120vh);opacity:0}
 }
 
-h1 { margin-bottom: 14px; }
-
-input {
-  width: 100%;
-  padding: 14px;
-  margin-bottom: 10px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  font-size: 15px;
+.card{
+  background:#fff;
+  padding:32px;
+  border-radius:22px;
+  width:92%;
+  max-width:480px;
+  text-align:center;
+  box-shadow:0 25px 50px rgba(0,0,0,.25);
+  z-index:2;
 }
 
-button {
-  padding: 14px 28px;
-  border-radius: 999px;
-  border: none;
-  font-weight: 600;
-  font-size: 15px;
-  background: #ff4d6d;
-  color: #fff;
-  cursor: pointer;
-  margin-top: 10px;
+h1{margin-bottom:12px}
+
+input{
+  width:100%;
+  padding:14px;
+  margin-bottom:10px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  font-size:15px;
 }
 
-button.secondary {
-  background: #111827;
-  margin: 8px;
+button{
+  padding:14px 28px;
+  border-radius:999px;
+  border:none;
+  font-size:15px;
+  font-weight:600;
+  background:#ff4d6d;
+  color:#fff;
+  cursor:pointer;
+  margin-top:10px;
 }
 
-.row { margin-top: 10px; }
-
-.letter {
-  display: inline-block;
-  padding: 6px 10px;
-  margin: 4px;
-  border-radius: 8px;
-  background: #f3f4f6;
-  font-weight: 600;
+button.secondary{
+  background:#111827;
+  margin:8px;
 }
 
-.strike {
-  background: #fecaca;
-  text-decoration: line-through;
+.row{margin-top:12px}
+
+.letter{
+  display:inline-block;
+  padding:6px 10px;
+  margin:4px;
+  border-radius:8px;
+  background:#f3f4f6;
+  font-weight:600;
 }
 
-.flames span {
-  display: inline-block;
-  padding: 10px 14px;
-  margin: 6px;
-  border-radius: 10px;
-  background: #e5e7eb;
-  font-weight: 700;
-  transition: .3s;
+.strike{
+  background:#fecaca;
+  text-decoration:line-through;
 }
 
-.flames .out {
-  opacity: .35;
-  text-decoration: line-through;
+.flames span{
+  display:inline-block;
+  padding:10px 14px;
+  margin:6px;
+  border-radius:10px;
+  background:#e5e7eb;
+  font-weight:700;
+  transition:.35s;
 }
 
-.flames .final {
-  border: 3px solid #ff4d6d;
-  background: #ffe4e6;
+.flames .out{
+  opacity:.35;
+  text-decoration:line-through;
 }
 
-#status, #count { margin-top: 12px; font-weight: 600; }
-#result { margin-top: 16px; font-size: 18px; font-weight: 700; display:none; }
-#history { margin-top: 8px; font-size: 14px; color:#374151; }
+.flames .final{
+  border:3px solid #ff4d6d;
+  background:#ffe4e6;
+}
+
+#status,#count{margin-top:12px;font-weight:600}
+#result{
+  margin-top:18px;
+  font-size:20px;
+  font-weight:700;
+  display:none;
+}
+#history{
+  margin-top:10px;
+  font-size:14px;
+  color:#374151;
+}
+#actions{display:none;margin-top:12px}
 </style>
 </head>
 
@@ -135,103 +144,95 @@ button.secondary {
   <div id="result"></div>
   <div id="history"></div>
 
-  <div id="actions" style="display:none;">
+  <div id="actions">
     <button class="secondary" onclick="share()">📤 Share</button>
-    <button class="secondary" onclick="location.reload()">🔄 Restart</button>
+    <button class="secondary" onclick="restart()">🔄 Restart</button>
   </div>
 </div>
 
 <script>
 /* Floating hearts */
-setInterval(() => {
-  const h = document.createElement("div");
-  h.className = "heart";
-  h.innerText = "❤️";
-  h.style.left = Math.random()*100+"vw";
-  h.style.animationDuration = (6+Math.random()*4)+"s";
+setInterval(()=>{
+  const h=document.createElement("div");
+  h.className="heart";
+  h.innerText="❤️";
+  h.style.left=Math.random()*100+"vw";
+  h.style.animationDuration=(4+Math.random()*3)+"s";
   document.body.appendChild(h);
-  setTimeout(()=>h.remove(),10000);
-}, 700);
+  setTimeout(()=>h.remove(),7000);
+},600);
 
-/* Logic */
-let a=[], b=[], remaining=0;
-const flamesOrder = ["F","L","A","M","E","S"];
-let flamesState = [];
-let stepIndex = 0;
+/* Globals */
+const flamesLetters=["F","L","A","M","E","S"];
+let flamesState=[],stepIndex=0,remaining=0;
 
+/* Start */
 function start(){
-  const name1=n1.value.trim();
-  const name2=n2.value.trim();
-  if(!name1 || !name2) return alert("Enter both names");
-
-  a=name1.toLowerCase().replace(/\s/g,"").split("");
-  b=name2.toLowerCase().replace(/\s/g,"").split("");
+  const a=n1.value.trim().toLowerCase().replace(/\s/g,"").split("");
+  const b=n2.value.trim().toLowerCase().replace(/\s/g,"").split("");
+  if(!a.length||!b.length) return alert("Enter both names");
 
   form.style.display="none";
-  status.innerText="Showing letters…";
+  status.innerText="Comparing names…";
 
-  row1.innerHTML = a.map(l=>`<span class="letter">${l}</span>`).join("");
-  row2.innerHTML = b.map(l=>`<span class="letter">${l}</span>`).join("");
+  row1.innerHTML=a.map(l=>`<span class="letter">${l}</span>`).join("");
+  row2.innerHTML=b.map(l=>`<span class="letter">${l}</span>`).join("");
 
-  setTimeout(strikeCommon,3000);
+  setTimeout(()=>strikeCommon(a,b),800);
 }
 
-function strikeCommon(){
-  status.innerText="Striking common letters…";
-  const r1=row1.children, r2=row2.children;
-
+/* Strike common letters */
+function strikeCommon(a,b){
+  const r1=row1.children,r2=row2.children;
   a.forEach((l,i)=>{
     const j=b.indexOf(l);
     if(j>-1){
       r1[i].classList.add("strike");
       r2[j].classList.add("strike");
-      a[i]=""; b[j]="";
+      a[i]="";b[j]="";
     }
   });
 
-  setTimeout(countRemaining,3000);
-}
-
-function countRemaining(){
-  remaining = a.join("").length + b.join("").length;
-  count.innerText = "Remaining letters count: "+remaining;
-  status.innerText="Running FLAMES…";
+  remaining=a.join("").length+b.join("").length;
+  count.innerText="Remaining letters count: "+remaining;
 
   initFlames();
-  setTimeout(runFlames,3000);
+  setTimeout(runFlames,700);
 }
 
+/* FLAMES init */
 function initFlames(){
-  flamesState = flamesOrder.map(l=>({letter:l, out:false}));
+  flamesState=flamesLetters.map(l=>({l,out:false,final:false}));
   renderFlames();
 }
 
+/* Render */
 function renderFlames(){
-  flames.innerHTML = flamesState.map(f =>
-    `<span class="${f.out ? 'out':''}">${f.letter}</span>`
+  flames.innerHTML=flamesState.map(f=>
+    `<span class="${f.final?'final':f.out?'out':''}">${f.l}</span>`
   ).join("");
 }
 
+/* Run elimination */
 function runFlames(){
-  const active = flamesState.filter(f=>!f.out);
-  if(active.length === 1){
-    active[0].final = true;
-    flames.innerHTML = flamesState.map(f =>
-      `<span class="${f.final?'final':f.out?'out':''}">${f.letter}</span>`
-    ).join("");
-    showResult(active[0].letter);
+  const active=flamesState.filter(f=>!f.out&&!f.final);
+
+  if(active.length===1){
+    active[0].final=true;
+    renderFlames();
+    setTimeout(()=>showResult(active[0].l),1000);
     return;
   }
 
-  stepIndex = (stepIndex + remaining - 1) % active.length;
-  const target = active[stepIndex];
-  target.out = true;
+  stepIndex=(stepIndex+remaining-1)%active.length;
+  active[stepIndex].out=true;
 
   renderFlames();
-  setTimeout(runFlames,3000);
+  setTimeout(runFlames,700);
 }
 
-function showResult(letter){
+/* Result */
+function showResult(l){
   const map={
     F:["🤝 Friends","#a1c4fd"],
     L:["❤️ Love","#ff9a9e"],
@@ -241,24 +242,29 @@ function showResult(letter){
     S:["💞 Soulmates","#fddb92"]
   };
 
-  document.body.style.background =
-    `linear-gradient(135deg,${map[letter][1]},#fff)`;
-
-  result.innerText = map[letter][0];
+  document.body.style.background=`linear-gradient(135deg,${map[l][1]},#fff)`;
+  result.innerText=map[l][0];
   result.style.display="block";
 
-  localStorage.setItem("lastResult",map[letter][0]);
-  history.innerText = "Last result: "+map[letter][0];
+  localStorage.setItem("flamesLast",map[l][0]);
+  history.innerText="Last result: "+map[l][0];
   actions.style.display="block";
 }
 
+/* Share */
 function share(){
   navigator.clipboard.writeText("FLAMES Result: "+result.innerText);
   alert("Copied to clipboard 💖");
 }
 
+/* Restart */
+function restart(){
+  location.reload();
+}
+
+/* Load history */
 window.onload=()=>{
-  const last=localStorage.getItem("lastResult");
+  const last=localStorage.getItem("flamesLast");
   if(last) history.innerText="Last result: "+last;
 };
 </script>
